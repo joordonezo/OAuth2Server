@@ -41,7 +41,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final MongoUserDetailsService mongoUserDetailsService;
     private final AuthoritiesRepository authoritiesRepository;
 
     @Bean
@@ -88,11 +87,6 @@ public class SecurityConfig {
                 .formLogin(Customizer.withDefaults());
 
         return http.build();
-    }
-
-    @Bean
-    public UserDetailsService userDetailsService() {
-        return mongoUserDetailsService;
     }
 
     @Bean

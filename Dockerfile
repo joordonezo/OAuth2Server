@@ -8,8 +8,8 @@ RUN mvn clean package -DskipTests
 
 # Etapa 2: runtime
 FROM eclipse-temurin:17-jre
-WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
+WORKDIR /oauth2
+COPY --from=build /oauth2/target/*.jar app.jar
 
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]

@@ -3,6 +3,7 @@ package com.app.oauth2server.controllers;
 import com.app.oauth2server.entities.Authorities;
 import com.app.oauth2server.repositories.AuthoritiesRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,7 @@ import java.util.UUID;
 public class AuthoritiesController {
 
     private final AuthoritiesRepository authoritiesRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @GetMapping
     public String listAuthorities(Model model) {
@@ -42,7 +44,7 @@ public class AuthoritiesController {
     public String saveAuthority(
             @RequestParam(required = false) String id,
             @RequestParam String clientId,
-            @RequestParam String clientSecret,
+            @RequestParam(required = false) String clientSecret,
             @RequestParam(required = false) String[] clientAuthenticationMethods,
             @RequestParam(required = false) String[] authorizationGrantTypes,
             @RequestParam(required = false) String[] redirectUris,
@@ -50,19 +52,43 @@ public class AuthoritiesController {
             @RequestParam(required = false) String[] scopes,
             @RequestParam(defaultValue = "false") boolean requireAuthorizationConsent) {
 
-        Authorities authority = Authorities.builder()
-                .id(id != null && !id.isEmpty() ? id : UUID.randomUUID().toString())
-                .clientId(clientId)
-                .clientSecret(clientSecret)
-                .clientAuthenticationMethods(convertArrayToSet(clientAuthenticationMethods))
-                .authorizationGrantTypes(convertArrayToSet(authorizationGrantTypes))
-                .redirectUris(convertArrayToSet(redirectUris))
-                .postLogoutRedirectUris(convertArrayToSet(postLogoutRedirectUris))
-                .scopes(convertArrayToSet(scopes))
-                .requireAuthorizationConsent(requireAuthorizationConsent)
-                .build();
+        Authorities authority;
 
-        authoritiesRepository.save(authority).block();
+        if (id != null && !id.isEmpty()) {
+            // Editando authority existente
+            authority = authoritiesRepository.findById(id).block();
+            if (authority != null) {
+                authority.setClientId(clientId);
+                // Solo actualizar client secret si se proporciona uno nuevo
+                if (clientSecret != null && !clientSecret.trim().isEmpty()) {
+                    authority.setClientSecret(passwordEncoder.encode(clientSecret));
+                }
+                authority.setClientAuthenticationMethods(convertArrayToSet(clientAuthenticationMethods));
+                authority.setAuthorizationGrantTypes(convertArrayToSet(authorizationGrantTypes));
+                authority.setRedirectUris(convertArrayToSet(redirectUris));
+                authority.setPostLogoutRedirectUris(convertArrayToSet(postLogoutRedirectUris));
+                authority.setScopes(convertArrayToSet(scopes));
+                authority.setRequireAuthorizationConsent(requireAuthorizationConsent);
+            }
+        } else {
+            // Nueva authority - el client secret es requerido
+            authority = Authorities.builder()
+                    .id(UUID.randomUUID().toString())
+                    .clientId(clientId)
+                    .clientSecret(passwordEncoder.encode(clientSecret))
+                    .clientAuthenticationMethods(convertArrayToSet(clientAuthenticationMethods))
+                    .authorizationGrantTypes(convertArrayToSet(authorizationGrantTypes))
+                    .redirectUris(convertArrayToSet(redirectUris))
+                    .postLogoutRedirectUris(convertArrayToSet(postLogoutRedirectUris))
+                    .scopes(convertArrayToSet(scopes))
+                    .requireAuthorizationConsent(requireAuthorizationConsent)
+                    .build();
+        }
+
+        if (authority != null) {
+            authoritiesRepository.save(authority).block();
+        }
+
         return "redirect:/authorities";
     }
 

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout('Authorities', ~{::content})}">
+
+<content>
+
+    <div class="card">
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+            <h2>Authorities (OAuth2 Clients)</h2>
+            <div>
+                <a th:href="@{/users}" class="btn btn-secondary" style="margin-right:0.5rem;">
+                    Usuarios
+                </a>
+                <a th:href="@{/authorities/new}" class="btn">
+                    Nueva Authority
+                </a>
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(authorities)}">
+            <p>
+                No hay authorities registradas.
+                <a th:href="@{/authorities/new}">Crear la primera</a>
+            </p>
+        </div>
+
+        <table th:if="${!#lists.isEmpty(authorities)}">
+            <thead>
+            <tr>
+                <th>Client ID</th>
+                <th>Auth Methods</th>
+                <th>Grant Types</th>
+                <th>Scopes</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="authority : ${authorities}">
+                <td th:text="${authority.clientId}">client-id</td>
+                <td th:text="${#strings.listJoin(authority.clientAuthenticationMethods, ', ')}">auth</td>
+                <td th:text="${#strings.listJoin(authority.authorizationGrantTypes, ', ')}">grant</td>
+                <td th:text="${#strings.listJoin(authority.scopes, ', ')}">scopes</td>
+                <td>
+                    <a th:href="@{/authorities/edit/{id}(id=${authority.id})}" class="btn btn-secondary">
+                        Editar
+                    </a>
+                    <a th:href="@{/authorities/delete/{id}(id=${authority.id})}"
+                       class="btn btn-danger"
+                       onclick="return confirm('¿Estás seguro?')">
+                        Eliminar
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+</content>
+</html>

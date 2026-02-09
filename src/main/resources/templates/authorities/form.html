@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout('Authority', ~{::content})}">
+
+<content>
+
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0"
+                            th:text="${authority.id == null ? 'Nueva Authority' : 'Editar Authority'}">
+                        </h4>
+                    </div>
+
+                    <div class="card-body">
+
+                        <form th:action="@{/authorities/save}"
+                              method="post"
+                              th:object="${authority}">
+
+                            <!-- ID oculto -->
+                            <input type="hidden" th:field="*{id}"
+                                   th:if="${authority.id != null}" />
+
+                            <!-- Client ID -->
+                            <div class="mb-3">
+                                <label for="clientId" class="form-label">Client ID</label>
+                                <input type="text"
+                                       id="clientId"
+                                       class="form-control"
+                                       th:field="*{clientId}"
+                                       placeholder="client-id"
+                                       required />
+                            </div>
+
+                            <!-- Client Secret -->
+                            <div class="mb-3">
+                                <label for="clientSecret" class="form-label">
+                                    Client Secret
+                                    <span class="text-muted"
+                                          th:if="${authority.id != null}">
+                                        (opcional al editar)
+                                    </span>
+                                </label>
+                                <input type="password"
+                                       id="clientSecret"
+                                       class="form-control"
+                                       th:field="*{clientSecret}"
+                                       placeholder="client-secret"
+                                       th:required="${authority.id == null}" />
+                            </div>
+
+                            <!-- Auth Methods -->
+                            <div class="mb-3">
+                                <label class="form-label">Métodos de Autenticación</label>
+
+                                <div class="form-check">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           name="clientAuthenticationMethods"
+                                           value="client_secret_basic"
+                                           th:checked="${authority.clientAuthenticationMethods != null &&
+                                               authority.clientAuthenticationMethods.contains('client_secret_basic')}" />
+                                    <label class="form-check-label">
+                                        client_secret_basic
+                                    </label>
+                                </div>
+
+                                <div class="form-check">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           name="clientAuthenticationMethods"
+                                           value="client_secret_post"
+                                           th:checked="${authority.clientAuthenticationMethods != null &&
+                                               authority.clientAuthenticationMethods.contains('client_secret_post')}" />
+                                    <label class="form-check-label">
+                                        client_secret_post
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Grant Types -->
+                            <div class="mb-3">
+                                <label class="form-label">Grant Types</label>
+
+                                <div class="form-check">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           name="authorizationGrantTypes"
+                                           value="authorization_code"
+                                           th:checked="${authority.authorizationGrantTypes != null &&
+                                               authority.authorizationGrantTypes.contains('authorization_code')}" />
+                                    <label class="form-check-label">
+                                        authorization_code
+                                    </label>
+                                </div>
+
+                                <div class="form-check">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           name="authorizationGrantTypes"
+                                           value="client_credentials"
+                                           th:checked="${authority.authorizationGrantTypes != null &&
+                                               authority.authorizationGrantTypes.contains('client_credentials')}" />
+                                    <label class="form-check-label">
+                                        client_credentials
+                                    </label>
+                                </div>
+
+                                <div class="form-check">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           name="authorizationGrantTypes"
+                                           value="refresh_token"
+                                           th:checked="${authority.authorizationGrantTypes != null &&
+                                               authority.authorizationGrantTypes.contains('refresh_token')}" />
+                                    <label class="form-check-label">
+                                        refresh_token
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Redirect URIs -->
+                            <div class="mb-3">
+                                <label class="form-label">Redirect URIs</label>
+
+                                <input type="text"
+                                       class="form-control mb-2"
+                                       name="redirectUris"
+                                       th:each="uri : ${authority.redirectUris}"
+                                       th:value="${uri}"
+                                       placeholder="https://example.com/login/oauth2/code/client" />
+
+                                <input type="text"
+                                       class="form-control"
+                                       name="redirectUris"
+                                       placeholder="Añadir nueva redirect URI" />
+                            </div>
+
+                            <!-- Post Logout Redirect URIs -->
+                            <div class="mb-3">
+                                <label class="form-label">Post Logout Redirect URIs</label>
+
+                                <input type="text"
+                                       class="form-control mb-2"
+                                       name="postLogoutRedirectUris"
+                                       th:each="uri : ${authority.postLogoutRedirectUris}"
+                                       th:value="${uri}"
+                                       placeholder="https://example.com/logout/success" />
+
+                                <input type="text"
+                                       class="form-control"
+                                       name="postLogoutRedirectUris"
+                                       placeholder="Añadir nueva post logout URI" />
+                            </div>
+
+                            <!-- Scopes -->
+                            <div class="mb-3">
+                                <label class="form-label">Scopes</label>
+
+                                <div class="form-check">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           name="scopes"
+                                           value="openid"
+                                           th:checked="${authority.scopes != null &&
+                                               authority.scopes.contains('openid')}" />
+                                    <label class="form-check-label">openid</label>
+                                </div>
+
+                                <div class="form-check">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           name="scopes"
+                                           value="profile"
+                                           th:checked="${authority.scopes != null &&
+                                               authority.scopes.contains('profile')}" />
+                                    <label class="form-check-label">profile</label>
+                                </div>
+
+                                <div class="form-check">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           name="scopes"
+                                           value="read"
+                                           th:checked="${authority.scopes != null &&
+                                               authority.scopes.contains('read')}" />
+                                    <label class="form-check-label">read</label>
+                                </div>
+                            </div>
+
+                            <!-- Consent -->
+                            <div class="mb-4 form-check">
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       th:field="*{requireAuthorizationConsent}" />
+                                <label class="form-check-label">
+                                    Requiere consentimiento del usuario
+                                </label>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="d-flex justify-content-between">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-save"></i>
+                                    <span th:text="${authority.id == null ? 'Crear Authority' : 'Guardar Cambios'}"></span>
+                                </button>
+
+                                <a th:href="@{/authorities}"
+                                   class="btn btn-outline-secondary">
+                                    Cancelar
+                                </a>
+                            </div>
+
+                        </form>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</content>
+</html>

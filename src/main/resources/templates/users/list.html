@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout('Usuarios', ~{::content})}">
+
+<content>
+
+    <div class="card">
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+            <h2>Usuarios</h2>
+            <div>
+                <a th:href="@{/authorities}" class="btn btn-secondary" style="margin-right:0.5rem;">
+                    Authorities
+                </a>
+                <a th:href="@{/users/new}" class="btn">
+                    Nuevo Usuario
+                </a>
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(users)}">
+            <p>No hay usuarios registrados.</p>
+        </div>
+
+        <table th:if="${!#lists.isEmpty(users)}">
+            <thead>
+            <tr>
+                <th>Username</th>
+                <th>Roles</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="user : ${users}">
+                <td th:text="${user.username}">user</td>
+                <td th:text="${#strings.listJoin(user.roles, ', ')}">roles</td>
+                <td>
+                    <span th:if="${user.enabled}" style="color:green;">Activo</span>
+                    <span th:unless="${user.enabled}" style="color:red;">Inactivo</span>
+                </td>
+                <td>
+                    <a th:href="@{/users/edit/{id}(id=${user.id})}" class="btn btn-secondary">Editar</a>
+                    <a th:href="@{/users/delete/{id}(id=${user.id})}"
+                       class="btn btn-danger"
+                       onclick="return confirm('¿Estás seguro?')">
+                        Eliminar
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+</content>
+</html>

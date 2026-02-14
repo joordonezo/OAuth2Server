@@ -3,6 +3,7 @@ package com.app.oauth2server.services;
 import com.app.oauth2server.entities.Authorities;
 import com.app.oauth2server.repositories.AuthoritiesRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
@@ -10,6 +11,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 
 @RequiredArgsConstructor
+@Slf4j
 public class MongoRegisteredClientRepository implements RegisteredClientRepository {
 
     private final AuthoritiesRepository authoritiesRepository;
@@ -29,9 +31,17 @@ public class MongoRegisteredClientRepository implements RegisteredClientReposito
 
     @Override
     public RegisteredClient findByClientId(String clientId) {
-        return authoritiesRepository.findByClientId(clientId)
-                .map(this::mapToRegisteredClient)
-                .block();
+        try {
+            var authority = authoritiesRepository.findByClientId(clientId).block();
+            if (authority == null) {
+                log.warn("Client not found in MongoDB: {}", clientId);
+                return null;
+            }
+            return mapToRegisteredClient(authority);
+        } catch (Exception e) {
+            log.error("Error looking up or mapping client {}: {}", clientId, e.getMessage(), e);
+            return null;
+        }
     }
 
     private RegisteredClient mapToRegisteredClient(Authorities authority) {

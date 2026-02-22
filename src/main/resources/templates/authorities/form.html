@@ -190,6 +190,16 @@
                                                authority.scopes.contains('read')}" />
                                     <label class="form-check-label">read</label>
                                 </div>
+
+                                <div class="form-check">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           name="scopes"
+                                           value="claudeai"
+                                           th:checked="${authority.scopes != null &&
+                                               authority.scopes.contains('claudeai')}" />
+                                    <label class="form-check-label">claudeai</label>
+                                </div>
                             </div>
 
                             <!-- Consent -->

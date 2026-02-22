@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: "oauth2Server"
+# MongoDB Configuration
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/oauth2server}
+#Spring security
+  security:
+    oauth2:
+      authorizationserver:
+        issuer: ${ISSUER_URL:http://localhost:9000}
+
+server:
+  port: ${SERVER_PORT:9000}
+  # Session cookie name to avoid collision with other Spring apps on localhost
+  servlet:
+    session:
+      cookie:
+        name: "OAUTH2_SERVER_SESSIONID"
+  forward-headers-strategy: framework

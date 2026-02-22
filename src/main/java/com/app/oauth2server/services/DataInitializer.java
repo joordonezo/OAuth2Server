@@ -10,6 +10,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -25,6 +26,7 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
         initializeUsers();
+        ensureOpenIdScope();
     }
 
     private void initializeUsers() {
@@ -84,6 +86,23 @@ public class DataInitializer implements CommandLineRunner {
                                 .build())
                                 .doOnSuccess(user -> log.info("Usuario jorge creado con BCrypt"))
                 )
+                .subscribe();
+    }
+
+    /**
+     * Ensures that all registered clients have the 'openid' scope,
+     * which is required for OAuth2 Login (OIDC) flows.
+     */
+    private void ensureOpenIdScope() {
+        authoritiesRepository.findAll()
+                .filter(authority -> !authority.getScopes().contains("openid"))
+                .flatMap(authority -> {
+                    Set<String> updatedScopes = new HashSet<>(authority.getScopes());
+                    updatedScopes.add("openid");
+                    authority.setScopes(updatedScopes);
+                    log.info("Adding 'openid' scope to client: {}", authority.getClientId());
+                    return authoritiesRepository.save(authority);
+                })
                 .subscribe();
     }
 }

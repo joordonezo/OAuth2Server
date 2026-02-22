@@ -19,3 +19,10 @@ server:
       cookie:
         name: "OAUTH2_SERVER_SESSIONID"
   forward-headers-strategy: framework
+
+logging:
+  level:
+    root: INFO
+    org.springframework.security: ${LOGGING_LEVEL:WARN}
+    org.springframework.security.oauth2: ${LOGGING_LEVEL:WARN}
+    org.springframework.web.reactive.function.client: ${LOGGING_LEVEL:WARN}
